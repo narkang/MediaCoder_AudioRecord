@@ -22,6 +22,7 @@ import com.example.mediacoder.Camera.textureview.TextureCamera2Activity;
 import com.example.mediacoder.Camera.textureview.TextureCameraActivity;
 import com.example.mediacoder.R;
 
+//https://blog.csdn.net/afei__/article/details/86671206
 public class CameraActivity extends AppCompatActivity {
 
     @Override

@@ -8,6 +8,7 @@ import android.view.View;
 import com.example.mediacoder.AudioRecord.AudioRecordActivity;
 import com.example.mediacoder.Camera.CameraActivity;
 import com.example.mediacoder.draw_image.DrawImageActivity;
+import com.example.mediacoder.mediaExtractor.MediaExtractorActivity;
 import com.example.mediacoder.mediaMuxer.MediaMuxerActivity;
 
 public class MainActivity extends Activity {
@@ -31,6 +32,11 @@ public class MainActivity extends Activity {
     //使用 Camera API 采集视频数据(TextureView)
     public void cameraClick(View view){
         startActivity(new Intent(this, CameraActivity.class));
+    }
+
+    //MediaExtractor Demo
+    public void MediaExtractorClick(View view){
+        startActivity(new Intent(this, MediaExtractorActivity.class));
     }
 
     //音视频混合
