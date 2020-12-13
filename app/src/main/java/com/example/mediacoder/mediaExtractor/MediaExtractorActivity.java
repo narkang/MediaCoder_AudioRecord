@@ -26,6 +26,9 @@ import java.util.List;
 
 //https://www.cnblogs.com/renhui/p/7474096.html
 //https://blog.csdn.net/u010126792/article/details/86510903
+//https://juejin.cn/post/6844903904488996878
+//https://juejin.cn/post/6844903776252329998
+//https://blog.csdn.net/hejjunlin/article/details/53866405
 public class MediaExtractorActivity extends AppCompatActivity {
 
     private static final String TAG = MediaExtractorActivity.class.getSimpleName();
@@ -233,7 +236,7 @@ public class MediaExtractorActivity extends AppCompatActivity {
                 mAudioMediaExtractor.advance();
                 long second_sampletime = mAudioMediaExtractor.getSampleTime();
                 frameRate = Math.abs(second_sampletime - first_sampletime);//时间戳
-                Log.e(TAG, "fps audio:" + frameRate);
+                Log.e(TAG, "pts audio:" + frameRate);
                 mAudioMediaExtractor.unselectTrack(i);
             }
 
@@ -286,7 +289,7 @@ public class MediaExtractorActivity extends AppCompatActivity {
                 continue;
             }
             framerate = format.getInteger(MediaFormat.KEY_FRAME_RATE);
-            Log.e(TAG, "fps video:" + (1000 * 1000 / framerate));
+            Log.e(TAG, "pts video:" + (1000 * 1000 / framerate));
 
             mMediaExtractor.selectTrack(i);
 
