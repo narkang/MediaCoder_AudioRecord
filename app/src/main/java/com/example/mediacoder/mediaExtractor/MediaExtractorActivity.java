@@ -12,6 +12,7 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 
 import com.example.mediacoder.R;
@@ -26,6 +27,8 @@ import java.util.List;
 //https://www.cnblogs.com/renhui/p/7474096.html
 //https://blog.csdn.net/u010126792/article/details/86510903
 public class MediaExtractorActivity extends AppCompatActivity {
+
+    private static final String TAG = MediaExtractorActivity.class.getSimpleName();
 
     private MediaExtractor mMediaExtractor;
     private MediaMuxer mMediaMuxer;
@@ -226,13 +229,20 @@ public class MediaExtractorActivity extends AppCompatActivity {
                 mAudioMediaExtractor.selectTrack(i);//选择此音频轨道
                 mAudioMediaExtractor.readSampleData(buffer, 0);
                 long first_sampletime = mAudioMediaExtractor.getSampleTime();
+                //移动到下一帧
                 mAudioMediaExtractor.advance();
                 long second_sampletime = mAudioMediaExtractor.getSampleTime();
                 frameRate = Math.abs(second_sampletime - first_sampletime);//时间戳
+                Log.e(TAG, "fps audio:" + frameRate);
                 mAudioMediaExtractor.unselectTrack(i);
             }
 
             mAudioMediaExtractor.selectTrack(i);
+            File videoFile = new File(FileUtil.getExternalStorageDirectory() + "/audioOutput.mp4");
+            if(videoFile.exists()){
+                videoFile.delete();
+            }
+            videoFile.createNewFile();
             mAudioMediaMuxer = new MediaMuxer(FileUtil.getExternalStorageDirectory() + "/audioOutput.mp4", MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
             mAudioTrackIndex = mAudioMediaMuxer.addTrack(format);
             mAudioMediaMuxer.start();
@@ -276,7 +286,16 @@ public class MediaExtractorActivity extends AppCompatActivity {
                 continue;
             }
             framerate = format.getInteger(MediaFormat.KEY_FRAME_RATE);
+            Log.e(TAG, "fps video:" + (1000 * 1000 / framerate));
+
             mMediaExtractor.selectTrack(i);
+
+            File videoFile = new File(FileUtil.getExternalStorageDirectory() + "/videoOutput.mp4");
+            if(videoFile.exists()){
+                videoFile.delete();
+            }
+            videoFile.createNewFile();
+
             mMediaMuxer = new MediaMuxer(FileUtil.getExternalStorageDirectory() + "/videoOutput.mp4", MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
             mVideoTrackIndex = mMediaMuxer.addTrack(format);
             mMediaMuxer.start();
