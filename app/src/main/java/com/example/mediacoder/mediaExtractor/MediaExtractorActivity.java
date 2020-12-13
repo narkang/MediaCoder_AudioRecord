@@ -29,6 +29,9 @@ import java.util.List;
 //https://juejin.cn/post/6844903904488996878
 //https://juejin.cn/post/6844903776252329998
 //https://blog.csdn.net/hejjunlin/article/details/53866405
+//https://github.com/MannaYang/AudioVideoCodec
+//https://github.com/zhongjihao/AVMediaCodecMP4
+//https://github.com/yellowcath/VideoProcessor
 public class MediaExtractorActivity extends AppCompatActivity {
 
     private static final String TAG = MediaExtractorActivity.class.getSimpleName();
