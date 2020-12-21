@@ -79,9 +79,15 @@ public class MediaProjectionActivity extends AppCompatActivity {
 
     private void initMediaCodec() {
         try {
-            //此处是编码
-            mediaCodec = MediaCodec.createEncoderByType("video/avc");
-            MediaFormat format = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC,
+            //此处是编码 h264
+//            mediaCodec = MediaCodec.createEncoderByType("video/avc");
+            //type -> h265
+            mediaCodec = MediaCodec.createEncoderByType("video/hevc");
+            //h264编码器
+//            MediaFormat format = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC,
+//                    540, 960);
+            //h265编码器
+            MediaFormat format = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_HEVC,
                     540, 960);
 
             format.setInteger(MediaFormat.KEY_COLOR_FORMAT,
@@ -146,7 +152,8 @@ public class MediaProjectionActivity extends AppCompatActivity {
         FileOutputStream writer = null;
         try {
             // 打开一个写文件器，构造函数中的第二个参数true表示以追加形式写文件
-            writer = new FileOutputStream(Environment.getExternalStorageDirectory() + "/codec.h264", true);
+//            writer = new FileOutputStream(Environment.getExternalStorageDirectory() + "/codec.h264", true);
+            writer = new FileOutputStream(Environment.getExternalStorageDirectory() + "/codec_265.h265", true);
             writer.write(array);
             writer.write('\n');
 
@@ -191,7 +198,8 @@ public class MediaProjectionActivity extends AppCompatActivity {
         FileWriter writer = null;
         try {
             // 打开一个写文件器，构造函数中的第二个参数true表示以追加形式写文件
-            writer = new FileWriter(Environment.getExternalStorageDirectory() + "/codec.txt", true);
+//            writer = new FileWriter(Environment.getExternalStorageDirectory() + "/codec.txt", true);
+            writer = new FileWriter(Environment.getExternalStorageDirectory() + "/codec_H265.txt", true);
             writer.write(sb.toString());
             writer.write("\n");
         } catch (IOException e) {
