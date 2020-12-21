@@ -43,4 +43,11 @@
         android:onClick="mediaMuxerClick"
         />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="录频"
+        android:onClick="mediaProjectionClick"
+        />
+
 </LinearLayout>

@@ -7,6 +7,7 @@ import android.view.View;
 
 import com.example.mediacoder.AudioRecord.AudioRecordActivity;
 import com.example.mediacoder.Camera.CameraActivity;
+import com.example.mediacoder.MediaProjection.MediaProjectionActivity;
 import com.example.mediacoder.draw_image.DrawImageActivity;
 import com.example.mediacoder.mediaExtractor.MediaExtractorActivity;
 import com.example.mediacoder.mediaMuxer.MediaMuxerActivity;
@@ -42,5 +43,10 @@ public class MainActivity extends Activity {
     //音视频混合
     public void mediaMuxerClick(View view){
         startActivity(new Intent(this, MediaMuxerActivity.class));
+    }
+
+    //录频
+    public void mediaProjectionClick(View view){
+        startActivity(new Intent(this, MediaProjectionActivity.class));
     }
 }

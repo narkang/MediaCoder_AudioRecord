@@ -20,7 +20,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".mediaExtractor.MediaExtractorActivity"></activity>
+        <activity android:name=".MediaProjection.MediaProjectionActivity"></activity>
+        <activity android:name=".mediaExtractor.MediaExtractorActivity" />
         <activity
             android:name=".mediaMuxer.MediaMuxerActivity"
             android:screenOrientation="portrait" />
