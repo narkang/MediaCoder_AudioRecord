@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MediaCoder</string>
+    <string name="app_name">MediaCodec</string>
 
     <string name="start_record">开始录音</string>
     <string name="stop_record">停止录音</string>

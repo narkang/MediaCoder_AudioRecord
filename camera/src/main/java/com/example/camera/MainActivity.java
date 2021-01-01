@@ -5,11 +5,12 @@ import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.View;
 
 public class MainActivity extends Activity {
 
-    Camera1SurfaceView surfaceView;
+    Camera2TextureView surfaceView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +26,26 @@ public class MainActivity extends Activity {
         surfaceView.startCapture();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(checkPermission()){
+            surfaceView.openCamera();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        surfaceView.closeCamera();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        surfaceView.onDestroy();
+    }
+
     public boolean checkPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
                 (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
@@ -37,5 +58,13 @@ public class MainActivity extends Activity {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode == 1){
+            surfaceView.openCamera();
+        }
     }
 }

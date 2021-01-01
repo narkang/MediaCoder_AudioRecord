@@ -49,7 +49,7 @@ public class Camera1SurfaceView extends SurfaceView implements SurfaceHolder.Cal
         if (isCapture) {
             portraitData2Raw(bytes);
             isCapture = false;
-            captrue(buffer);
+            capture(buffer);
         }
         mCamera.addCallbackBuffer(bytes);
     }
@@ -86,7 +86,7 @@ public class Camera1SurfaceView extends SurfaceView implements SurfaceHolder.Cal
 
     int index = 0;
 
-    public void captrue(byte[] temp) {
+    public void capture(byte[] temp) {
 
         //保存一张照片
         String fileName = "IMG_" + String.valueOf(index++) + ".jpg";  //jpeg文件名定义

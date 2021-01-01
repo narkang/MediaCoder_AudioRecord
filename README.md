@@ -1,4 +1,4 @@
-# MediaCoder_AudioRecord
+# MediaCodec_AudioRecord
 
 ## 1、AudioRecord demo
 
@@ -6,4 +6,4 @@
 
 ## 3、MediaExtractor 1、提取 音频视频 2、合成 音频视频
 
-## 4、MediaCoder 混合音视频
+## 4、MediaCodec 混合音视频

@@ -3,10 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    >
+    android:layout_height="match_parent">
 
-    <com.example.camera.Camera1SurfaceView
+    <!--    <com.example.camera.Camera1SurfaceView-->
+    <!--        android:id="@+id/surface"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent" />-->
+
+    <com.example.camera.Camera2TextureView
         android:id="@+id/surface"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
@@ -14,8 +18,8 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="拍照"
         android:onClick="capture"
+        android:text="拍照"
 
         />
 
