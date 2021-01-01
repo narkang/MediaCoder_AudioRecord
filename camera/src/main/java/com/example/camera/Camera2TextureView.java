@@ -4,7 +4,9 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
+import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
+import android.graphics.YuvImage;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
@@ -20,6 +22,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 import android.os.Process;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
@@ -29,11 +32,11 @@ import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 import android.view.TextureView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -89,13 +92,13 @@ public class Camera2TextureView extends TextureView implements TextureView.Surfa
     protected void prepareCameraOutputs() {
         //获取相机支持的流的参数的集合
         StreamConfigurationMap map = mBackCameraCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-        //获取输出格式为ImageFormat.JPEG支持的所有尺寸
+        //获取输出格式为ImageFormat.NV21支持的所有尺寸
         Size[] outputSizes = map.getOutputSizes(ImageFormat.JPEG);
 
         mPreviewSize = outputSizes[0];
 
         mImageReader = ImageReader.newInstance(outputSizes[0].getWidth(), outputSizes[0].getHeight(),
-                ImageFormat.JPEG, 2);
+                ImageFormat.YUV_420_888, 2);
         mImageReader.setOnImageAvailableListener(this, mBackgroundHandler);
     }
 
@@ -105,9 +108,9 @@ public class Camera2TextureView extends TextureView implements TextureView.Surfa
         }
         try {
             prepareCameraOutputs();
-            if(isAvailable()){
+            if (isAvailable()) {
                 mCameraManager.openCamera(mCameraId, mStateCallback, mBackgroundHandler);
-            }else {
+            } else {
                 setSurfaceTextureListener(this);
             }
         } catch (CameraAccessException e) {
@@ -121,7 +124,7 @@ public class Camera2TextureView extends TextureView implements TextureView.Surfa
         closeImageReader();
     }
 
-    public void onDestroy(){
+    public void onDestroy() {
         stopBackgroundThread();
     }
 
@@ -151,7 +154,7 @@ public class Camera2TextureView extends TextureView implements TextureView.Surfa
                         }
                     }, null);
 
-        }catch (Exception e){
+        } catch (Exception e) {
             Log.e(TAG, "Error while preparing surface for preview: ", e);
         }
     }
@@ -253,7 +256,7 @@ public class Camera2TextureView extends TextureView implements TextureView.Surfa
         }
     }
 
-    public void startCapture(){
+    public void startCapture() {
         CaptureRequest.Builder captureRequestBuilder = null;
         try {
             //用CameraDevice创建一个CaptureRequest.Builder,类型为CameraDevice.TEMPLATE_STILL_CAPTURE，也就是说我们需要请求以个静态的图像。
@@ -272,7 +275,6 @@ public class Camera2TextureView extends TextureView implements TextureView.Surfa
                 @Override
                 public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
                     super.onCaptureCompleted(session, request, result);
-                    //拍照完成后重新开启预览
 
                 }
             }, mBackgroundHandler);
@@ -283,40 +285,69 @@ public class Camera2TextureView extends TextureView implements TextureView.Surfa
 
     //一个保存图片的Runnable
     int index = 0;
+
     class SaveImageRunnable implements Runnable {
         private Image image;
         private File imgFile;
 
         public SaveImageRunnable(Image image) {
             //保存一张照片
-            String fileName = "IMG_" + String.valueOf(index++) + ".jpg";  //jpeg文件名定义
+            String fileName = "IMG_" + String.valueOf(index++) + ".jpg";
             File imgFile = new File(Environment.getExternalStorageDirectory(), fileName);    //系统路径
 
             this.image = image;
             this.imgFile = imgFile;
         }
 
+        private void showToast(final String text) {
+            if (mContext != null) {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(mContext, text, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        }
+
         @Override
         public void run() {
-            ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-            byte[] byteBuffer = new byte[buffer.remaining()];
-            buffer.get(byteBuffer);
-            FileOutputStream fos = null;
+
+            int width = image.getWidth();
+            int height = image.getHeight();
+
+            byte[] yuvData = YUVUtil.rotateYUV420Degree90(ImageUtil.getBytesFromImageAsType(image, ImageUtil.NV21), image.getWidth(), image.getHeight());
+
+            //保存一张照片
+            String fileName = "IMG_" + String.valueOf(index++) + ".jpg";  //jpeg文件名定义
+            File sdRoot = Environment.getExternalStorageDirectory();    //系统路径
+
+            File pictureFile = new File(sdRoot, fileName);
+
+            FileOutputStream fous = null;
+
+            if(pictureFile.exists()) pictureFile.deleteOnExit();
+
             try {
+                pictureFile.createNewFile();
 
-                if(!imgFile.exists()) imgFile.createNewFile();
+                fous = new FileOutputStream(pictureFile);
+                YuvImage yuvImage = new YuvImage(yuvData, ImageFormat.NV21, height, width, null);
+                //图像压缩
+                yuvImage.compressToJpeg(new Rect(0, 0, yuvImage.getWidth(), yuvImage.getHeight()), 100, fous);   // 将NV21格式图片，以质量100压缩成Jpeg，并得到JPEG数据流
 
-                fos = new FileOutputStream(imgFile);
-                fos.write(byteBuffer);
-            } catch (java.io.IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             } finally {
-                try {
-                    assert fos != null;
-                    fos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if (null != fous) {
+                    try {
+                        fous.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
+                showToast("Saved: " + imgFile);
+                Log.d(TAG, imgFile.toString());
             }
         }
     }

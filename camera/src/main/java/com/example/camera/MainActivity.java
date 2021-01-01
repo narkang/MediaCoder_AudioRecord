@@ -3,6 +3,7 @@ package com.example.camera;
 import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
+import android.media.MediaActionSound;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -23,6 +24,9 @@ public class MainActivity extends Activity {
     }
 
     public void capture(View view) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+            new MediaActionSound().play(MediaActionSound.SHUTTER_CLICK);
+        }
         surfaceView.startCapture();
     }
 
