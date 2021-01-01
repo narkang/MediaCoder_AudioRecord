@@ -2,6 +2,7 @@ package com.example.camera;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaActionSound;
 import android.os.Build;
@@ -11,7 +12,7 @@ import android.view.View;
 
 public class MainActivity extends Activity {
 
-    Camera2TextureView surfaceView;
+    Camera2TextureView_JPEG surfaceView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,6 +20,16 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         surfaceView = findViewById(R.id.surface);
+
+        //这个是为了测试ExifInterface，别的TextureView不适用
+        surfaceView.setTakePhotoListener(new Camera2TextureView_JPEG.TakePhotoListener() {
+            @Override
+            public void takePhotoSuccess(String filePath) {
+                Intent intent = new Intent(MainActivity.this, PreviewActivity.class);
+                intent.putExtra("filePath", filePath);
+                startActivity(intent);
+            }
+        });
 
         checkPermission();
     }

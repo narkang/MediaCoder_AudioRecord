@@ -4,9 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
-import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
-import android.graphics.YuvImage;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
@@ -32,17 +30,17 @@ import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 import android.view.TextureView;
-import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-public class Camera2TextureView extends TextureView implements TextureView.SurfaceTextureListener, ImageReader.OnImageAvailableListener {
+public class Camera2TextureView_JPEG extends TextureView implements TextureView.SurfaceTextureListener, ImageReader.OnImageAvailableListener {
 
-    private static final String TAG = Camera2TextureView.class.getSimpleName();
+    private static final String TAG = Camera2TextureView_JPEG.class.getSimpleName();
 
     private Context mContext;
 
@@ -64,7 +62,7 @@ public class Camera2TextureView extends TextureView implements TextureView.Surfa
 
     private Size mPreviewSize;
 
-    public Camera2TextureView(Context context, AttributeSet attrs) {
+    public Camera2TextureView_JPEG(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         this.mContext = context;
@@ -74,7 +72,7 @@ public class Camera2TextureView extends TextureView implements TextureView.Surfa
     private CameraDevice.StateCallback mStateCallback = new CameraDevice.StateCallback() {
         @Override
         public void onOpened(@NonNull CameraDevice cameraDevice) {
-            Camera2TextureView.this.mCameraDevice = cameraDevice;
+            Camera2TextureView_JPEG.this.mCameraDevice = cameraDevice;
             createCaptureSession();
         }
 
@@ -98,7 +96,7 @@ public class Camera2TextureView extends TextureView implements TextureView.Surfa
         mPreviewSize = outputSizes[0];
 
         mImageReader = ImageReader.newInstance(outputSizes[0].getWidth(), outputSizes[0].getHeight(),
-                ImageFormat.YUV_420_888, 2);
+                ImageFormat.JPEG, 2);
         mImageReader.setOnImageAvailableListener(this, mBackgroundHandler);
     }
 
@@ -285,69 +283,49 @@ public class Camera2TextureView extends TextureView implements TextureView.Surfa
 
     //一个保存图片的Runnable
     int index = 0;
-
     class SaveImageRunnable implements Runnable {
         private Image image;
         private File imgFile;
 
         public SaveImageRunnable(Image image) {
             //保存一张照片
-            String fileName = "IMG_" + String.valueOf(index++) + ".jpg";
+            String fileName = "IMG_" + String.valueOf(index++) + ".jpg";  //jpeg文件名定义
             File imgFile = new File(Environment.getExternalStorageDirectory(), fileName);    //系统路径
 
             this.image = image;
             this.imgFile = imgFile;
         }
 
-        private void showToast(final String text) {
-            if (mContext != null) {
+        @Override
+        public void run() {
+            ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+            byte[] byteBuffer = new byte[buffer.remaining()];
+            buffer.get(byteBuffer);
+            FileOutputStream fos = null;
+            try {
+
+                if(!imgFile.exists()) imgFile.createNewFile();
+
+                fos = new FileOutputStream(imgFile);
+                fos.write(byteBuffer);
+            } catch (java.io.IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    assert fos != null;
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(mContext, text, Toast.LENGTH_SHORT).show();
+                        if(takePhotoListener != null){
+                            takePhotoListener.takePhotoSuccess(imgFile.toString());
+                        }
                     }
                 });
-            }
-        }
-
-        @Override
-        public void run() {
-
-            int width = image.getWidth();
-            int height = image.getHeight();
-
-            byte[] yuvData = YUVUtil.rotateYUV420Degree90(ImageUtil.getBytesFromImageAsType(image, ImageUtil.NV21), image.getWidth(), image.getHeight());
-
-            //保存一张照片
-            String fileName = "IMG_" + String.valueOf(index++) + ".jpg";  //jpeg文件名定义
-            File sdRoot = Environment.getExternalStorageDirectory();    //系统路径
-
-            File pictureFile = new File(sdRoot, fileName);
-
-            FileOutputStream fous = null;
-
-            if(pictureFile.exists()) pictureFile.deleteOnExit();
-
-            try {
-                pictureFile.createNewFile();
-
-                fous = new FileOutputStream(pictureFile);
-                YuvImage yuvImage = new YuvImage(yuvData, ImageFormat.NV21, height, width, null);
-                //图像压缩
-                yuvImage.compressToJpeg(new Rect(0, 0, yuvImage.getWidth(), yuvImage.getHeight()), 100, fous);   // 将NV21格式图片，以质量100压缩成Jpeg，并得到JPEG数据流
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                if (null != fous) {
-                    try {
-                        fous.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                showToast("Saved: " + imgFile);
-                Log.d(TAG, imgFile.toString());
             }
         }
     }
@@ -376,5 +354,17 @@ public class Camera2TextureView extends TextureView implements TextureView.Surfa
         //发送拍照的请求后，相机将图像数据填充到imageReader的Surface中的时候会回调这里
         //我们想后台线程post一个runnable
         mBackgroundHandler.post(new SaveImageRunnable(reader.acquireNextImage()));
+    }
+
+    private TakePhotoListener takePhotoListener;
+
+    public interface TakePhotoListener{
+
+        void takePhotoSuccess(String filePath);
+
+    }
+
+    public void setTakePhotoListener(TakePhotoListener takePhotoListener) {
+        this.takePhotoListener = takePhotoListener;
     }
 }
