@@ -58,13 +58,8 @@ public class VideoProcess {
         MediaCodec.BufferInfo info = new MediaCodec.BufferInfo();
         info.presentationTimeUs = 0;
         ByteBuffer buffer = ByteBuffer.allocate(500 * 1024);
-        while (true) {
-
-            int sampleSize = videoExtractor1.readSampleData(buffer, 0);
-            if(sampleSize < 0){
-                break;
-            }
-
+        int sampleSize = 0;
+        while ((sampleSize = videoExtractor1.readSampleData(buffer, 0)) >= 0) {
             info.offset = 0;
             info.size = sampleSize;
             info.flags = videoExtractor1.getSampleFlags();
@@ -79,18 +74,13 @@ public class VideoProcess {
         info = new MediaCodec.BufferInfo();
         info.presentationTimeUs = 0;
         buffer = ByteBuffer.allocate(500 * 1024);
-
-        while (true) {
-            int sampleSize = videoExtractor1.readSampleData(buffer, 0);
-            if (sampleSize < 0) {
-                break;
-            }
-
+        sampleSize = 0;
+        while ((sampleSize = videoExtractor1.readSampleData(buffer, 0)) >= 0) {
             info.offset = 0;
             info.size = sampleSize;
             info.flags = videoExtractor1.getSampleFlags();
             info.presentationTimeUs = videoExtractor1.getSampleTime();
-            mediaMuxer.writeSampleData(videoTrackIndex, buffer, info);
+            mediaMuxer.writeSampleData(audioTrackIndex, buffer, info);
             videoExtractor1.advance();
         }
 
@@ -99,13 +89,8 @@ public class VideoProcess {
         info = new MediaCodec.BufferInfo();
         info.presentationTimeUs = 0;
         buffer = ByteBuffer.allocate(500 * 1024);
-
-        while (true) {
-            int sampleSize = videoExtractor2.readSampleData(buffer, 0);
-            if (sampleSize < 0) {
-                break;
-            }
-
+        sampleSize = 0;
+        while ((sampleSize = videoExtractor2.readSampleData(buffer, 0)) >= 0) {
             info.offset = 0;
             info.size = sampleSize;
             info.flags = videoExtractor2.getSampleFlags();
@@ -120,18 +105,13 @@ public class VideoProcess {
         info = new MediaCodec.BufferInfo();
         info.presentationTimeUs = 0;
         buffer = ByteBuffer.allocate(500 * 1024);
-
-        while (true) {
-            int sampleSize = videoExtractor2.readSampleData(buffer, 0);
-            if (sampleSize < 0) {
-                break;
-            }
-
+        sampleSize = 0;
+        while ((sampleSize = videoExtractor2.readSampleData(buffer, 0)) >= 0) {
             info.offset = 0;
             info.size = sampleSize;
             info.flags = videoExtractor2.getSampleFlags();
             info.presentationTimeUs = videoExtractor2.getSampleTime() + file1_duration;
-            mediaMuxer.writeSampleData(videoTrackIndex, buffer, info);
+            mediaMuxer.writeSampleData(audioTrackIndex, buffer, info);
             videoExtractor2.advance();
         }
 
