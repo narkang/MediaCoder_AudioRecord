@@ -20,20 +20,22 @@ public class VideoProcess {
 
         int videoTrackIndex = -1;
         int audioTrackIndex = -1;
-        long file1_duration = 0L;
+        long file1_video_duration = 0L;
+        long file1_audio_duration = 0L;
 
         int sourceVideoTrack1 = -1;
         int sourceAudioTrack1 = -1;
         for (int index = 0; index < videoExtractor1.getTrackCount(); index++) {
             MediaFormat format = videoExtractor1.getTrackFormat(index);
             String mime = format.getString(MediaFormat.KEY_MIME);
-            file1_duration = format.getLong(MediaFormat.KEY_DURATION);
             if (mime.startsWith("video/")) {
                 sourceVideoTrack1 = index;
                 videoTrackIndex = mediaMuxer.addTrack(format);
+                file1_video_duration = format.getLong(MediaFormat.KEY_DURATION);
             } else if (mime.startsWith("audio/")) {
                 sourceAudioTrack1 = index;
                 audioTrackIndex = mediaMuxer.addTrack(format);
+                file1_audio_duration = format.getLong(MediaFormat.KEY_DURATION);
             }
         }
 
@@ -53,6 +55,7 @@ public class VideoProcess {
             return false;
 
         mediaMuxer.start();
+
         //1.write first video track into muxer.
         videoExtractor1.selectTrack(sourceVideoTrack1);
         MediaCodec.BufferInfo info = new MediaCodec.BufferInfo();
@@ -94,7 +97,7 @@ public class VideoProcess {
             info.offset = 0;
             info.size = sampleSize;
             info.flags = videoExtractor2.getSampleFlags();
-            info.presentationTimeUs = videoExtractor2.getSampleTime() + file1_duration;
+            info.presentationTimeUs = videoExtractor2.getSampleTime() + file1_video_duration;
             mediaMuxer.writeSampleData(videoTrackIndex, buffer, info);
             videoExtractor2.advance();
         }
@@ -110,11 +113,10 @@ public class VideoProcess {
             info.offset = 0;
             info.size = sampleSize;
             info.flags = videoExtractor2.getSampleFlags();
-            info.presentationTimeUs = videoExtractor2.getSampleTime() + file1_duration;
+            info.presentationTimeUs = videoExtractor2.getSampleTime() + file1_audio_duration;
             mediaMuxer.writeSampleData(audioTrackIndex, buffer, info);
             videoExtractor2.advance();
         }
-
         videoExtractor1.release();
         videoExtractor2.release();
         mediaMuxer.stop();
