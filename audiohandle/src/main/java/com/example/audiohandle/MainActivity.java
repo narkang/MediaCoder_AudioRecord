@@ -9,8 +9,10 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Toast;
 
 import com.example.audiohandle.util.MusicProcess;
+import com.example.audiohandle.util.VideoProcess;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
         }
         return false;
     }
-
 
     public void musicMix(View view){
         new Thread(new Runnable() {
@@ -95,6 +96,37 @@ public class MainActivity extends AppCompatActivity {
 
     public void videoMix(View view){
         startActivity(new Intent(this, VideoMixActivity.class));
+    }
+
+    public void videoAdd(View view){
+        final String videoPath= new File(Environment.getExternalStorageDirectory(), "input.mp4").getAbsolutePath();
+        final String videoPath1 = new File(Environment.getExternalStorageDirectory(), "input2.mp4").getAbsolutePath();
+        final String outPath = new File(Environment.getExternalStorageDirectory(), "outPath.mp4").getAbsolutePath();
+        new Thread() {
+            @Override
+            public void run() {
+
+                try {
+                    copyAssets("input.mp4", videoPath);
+                    copyAssets("input2.mp4", videoPath1);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    VideoProcess.appendVideo( videoPath1,videoPath, outPath);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        Toast.makeText(MainActivity.this, "合并完成", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        }.start();
+
     }
 
     private void copyAssets(String assetsName, String path) throws IOException {

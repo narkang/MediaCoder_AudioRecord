@@ -28,4 +28,11 @@
         android:onClick="videoMix"
         />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="视频拼接"
+        android:onClick="videoAdd"
+        />
+
 </LinearLayout>
