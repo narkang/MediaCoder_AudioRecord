@@ -6,7 +6,7 @@ import android.content.pm.PackageManager;
 import android.media.MediaActionSound;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.view.View;
 
 public class MainActivity extends Activity {

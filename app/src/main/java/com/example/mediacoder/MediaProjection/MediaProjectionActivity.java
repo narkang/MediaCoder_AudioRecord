@@ -14,10 +14,11 @@ import android.media.projection.MediaProjectionManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Surface;
 import android.view.View;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.mediacoder.R;
 
